@@ -1,0 +1,116 @@
+from telegram import Update
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from datetime import datetime, date, time
+from src.service.pushup import DatabaseService
+
+recorded_values = []
+
+
+def get_nickname(update: Update) -> str:
+    user = update.effective_user
+    return user.username or f"{user.first_name}_{user.id}"
+
+
+async def record(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.args:
+        try:
+            pushups_done = int(context.args[0])
+            nickname = get_nickname(update)
+
+            service = DatabaseService()
+            service.record_pushups(nickname=nickname, pushups_done=pushups_done)
+            service.close()
+            summary = service.get_user_summary(nickname)
+            if summary['total_pushups'] < 100:
+                await update.message.reply_text(f"Еще не 100, хммм... Записал!")
+                await update.message.reply_text(f"Тебя пидором, но пока что карандашом")
+            else:
+                await update.message.reply_text(f"Вот это мужчина, посмотрите на него")
+            # await update.message.reply_text(f"Записал {pushups_done} отжиманий за @{nickname}! ")
+
+        except ValueError:
+            await update.message.reply_text("Введите число, а не буквы 💀")
+    else:
+        await update.message.reply_text("Пример: /record 30")
+
+
+async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    nickname = get_nickname(update)
+
+    service = DatabaseService()
+    text = service.get_user_summary(nickname=nickname)
+    service.close()
+
+    await update.message.reply_text(text)
+
+
+async def reply_to_mentions(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text.lower()
+    bot_username = (await context.bot.get_me()).username.lower()
+
+    if bot_username in text:
+        parts = text.split()
+        if len(parts) > 1:
+            command = parts[1]
+            args = parts[2:] if len(parts) > 2 else []
+            if command == "/Отжал" and args:
+                try:
+                    value = float(args[0])
+                    recorded_values.append(value)
+                    await update.message.reply_text(f": {value}")
+                except ValueError:
+                    await update.message.reply_text("ЭТО")
+                    await update.message.reply_text("ОЧЕНЬ")
+                    await update.message.reply_text("СМЕШНО")
+            else:
+                await update.message.reply_text("Unknown command after mention.")
+        else:
+            await update.message.reply_text("Hi! Use /record <value> or /summary.")
+
+
+async def periodic_message(context: ContextTypes.DEFAULT_TYPE):
+    now = datetime.now()
+    if not (time(9, 0) <= now.time() <= time(22, 0)):
+        return
+
+    service = DatabaseService()
+
+    all_users = service.repo.get_all_users()
+    for user in all_users:
+        user_pushups_today = service.repo.get_pushups_for_user_on_day(user.id, date.today())
+        total_today = sum(entry.pushups_done for entry in user_pushups_today)
+
+        if total_today < 100:
+            await context.bot.send_message(
+                chat_id="-1002260855576",
+                text=f"@{user.nickname}, ты сегодня сделал только {total_today} отжиманий. Пора качаться! 💪"
+            )
+
+    service.close()
+
+
+async def daily_summary(context: ContextTypes.DEFAULT_TYPE):
+    service = DatabaseService()
+    today = date.today()
+
+    all_users = service.repo.get_all_users()
+    summary_lines = []
+
+    for user in all_users:
+        entries = service.repo.get_pushups_for_user_on_day(user.id, today)
+        total = sum(e.pushups_done for e in entries)
+
+        summary_lines.append(f"👤 {user.nickname}: {total} отжиманий")
+
+    service.close()
+
+    if not summary_lines:
+        summary_text = "Сегодня никто не отжимался 😴"
+    else:
+        summary_text = "📊 Сводка за сегодня:\n\n" + "\n".join(summary_lines)
+
+    await context.bot.send_message(chat_id="-1002260855576", text=summary_text)
+
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Го качаться!")
