@@ -40,7 +40,15 @@ async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
     service = DatabaseService()
     text = service.get_user_summary(nickname=nickname)
     service.close()
-    reply_text = f"Качок {text['nickname']}\nСделал всего: {text['total_pushups']}\nПарень качается {text['days_trained']} дней\nВ среднем {text['average_per_day']} отжиманий в день\nМаксимум в день {text['max_pushups_in_a_day']}\n{text['motivation']}"
+    reply_text = (
+        f"Качок {text['nickname']}\n"
+        f"Сделал всего: {text['total_pushups']}\n"
+        f"Сегодня: {text['today_pushups']}\n"
+        f"Парень качается {text['days_trained']} дней\n"
+        f"В среднем {text['average_per_day']} отжиманий в день\n"
+        f"Максимум в день {text['max_pushups_in_a_day']}\n"
+        f"{text['motivation']}"
+    )
     await update.message.reply_text(reply_text)
 
 

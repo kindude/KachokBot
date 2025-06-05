@@ -21,33 +21,34 @@ class DatabaseService:
         )
         return result
 
-    def get_user_summary(self, nickname: str):
+    def get_user_summary(self, nickname: str) -> dict:
         user = self.repo.get_user_by_nickname(nickname)
         if not user:
-            return f"No user found with nickname '{nickname}'"
+            return {"nickname": nickname, "total_pushups": 0, "days_trained": 0,
+                    "average_per_day": 0, "max_pushups_in_a_day": 0, "motivation": "", "today_pushups": 0}
 
         all_pushups = self.repo.get_pushups_for_user(user.id)
- 
         if not all_pushups:
-            return f"No workouts yet, {nickname}!"
+            return {"nickname": nickname, "total_pushups": 0, "days_trained": 0,
+                    "average_per_day": 0, "max_pushups_in_a_day": 0, "motivation": "", "today_pushups": 0}
 
-        total = sum(entry.pushups_done for entry in all_pushups)
-        days = len(all_pushups)
-        avg = total / days
-        max_pushups = max(entry.pushups_done for entry in all_pushups)
+        total_pushups = sum(p.pushups_done for p in all_pushups)
+        days_trained = len({p.day_id for p in all_pushups})
+        average_per_day = total_pushups // days_trained
+        max_pushups = max(p.pushups_done for p in all_pushups)
 
-        feedback = (
-            "Beast Mode!" if total > 60  else
-            "Keep it up!" if total > 80  else
-            "Just getting started!"
-        )
+        today = date.today()
+        today_pushups = sum(p.pushups_done for p in self.repo.get_pushups_for_user_on_day(user.id, today))
+
+        motivation = "Продолжай в том же духе!" if today_pushups > 0 else "Сегодня еще не качался!"
 
         return {
             "nickname": nickname,
-            "total_pushups": total,
-            "days_trained": days,
-            "average_per_day": round(avg, 1),
+            "total_pushups": total_pushups,
+            "days_trained": days_trained,
+            "average_per_day": average_per_day,
             "max_pushups_in_a_day": max_pushups,
-            "motivation": feedback
+            "motivation": motivation,
+            "today_pushups": today_pushups
         }
 
