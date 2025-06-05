@@ -27,7 +27,7 @@ class DatabaseService:
             return f"No user found with nickname '{nickname}'"
 
         all_pushups = self.repo.get_pushups_for_user(user.id)
-
+ 
         if not all_pushups:
             return f"No workouts yet, {nickname}!"
 
@@ -37,8 +37,8 @@ class DatabaseService:
         max_pushups = max(entry.pushups_done for entry in all_pushups)
 
         feedback = (
-            "Beast Mode!" if total > 500 else
-            "Keep it up!" if total > 100 else
+            "Beast Mode!" if total > 60  else
+            "Keep it up!" if total > 80  else
             "Just getting started!"
         )
 
