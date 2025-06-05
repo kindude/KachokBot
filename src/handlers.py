@@ -40,6 +40,7 @@ async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
     service = DatabaseService()
     text = service.get_user_summary(nickname=nickname)
     service.close()
+
     reply_text = (
         f"Качок {text['nickname']}\n"
         f"Сделал всего: {text['total_pushups']}\n"
@@ -47,8 +48,10 @@ async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"Парень качается {text['days_trained']} дней\n"
         f"В среднем {text['average_per_day']} отжиманий в день\n"
         f"Максимум в день {text['max_pushups_in_a_day']}\n"
+        f"Прогресс за месяц: {text['monthly_percentage']}%\n"
         f"{text['motivation']}"
     )
+
     await update.message.reply_text(reply_text)
 
 
