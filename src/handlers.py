@@ -22,8 +22,8 @@ async def record(update: Update, context: ContextTypes.DEFAULT_TYPE):
             service.close()
             summary = service.get_user_summary(nickname)
             if summary['total_pushups'] < 100:
-                await update.message.reply_text(f"Еще не 100, хммм... Записал!")
-                await update.message.reply_text(f"Тебя пидором, но пока что карандашом")
+                await update.message.reply_text(f"Ну мужчина, мужчинский! Записал!")
+                #await update.message.reply_text(f"Тебя пидором, но пока что карандашом")
             else:
                 await update.message.reply_text(f"Вот это мужчина, посмотрите на него")
             # await update.message.reply_text(f"Записал {pushups_done} отжиманий за @{nickname}! ")
@@ -40,8 +40,8 @@ async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
     service = DatabaseService()
     text = service.get_user_summary(nickname=nickname)
     service.close()
-
-    await update.message.reply_text(text)
+    reply_text = f"Качок {text['nickname']}\nСделал всего: {text['total_pushups']}\nПарень качается {text['days_trained']} дней\nВ среднем {text['average_per_day']} отжиманий в день\nМаксимум в день {text['max_pushups_in_a_day']}\n{text['motivation']}"
+    await update.message.reply_text(reply_text)
 
 
 async def reply_to_mentions(update: Update, context: ContextTypes.DEFAULT_TYPE):
