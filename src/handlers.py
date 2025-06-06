@@ -122,4 +122,6 @@ async def daily_summary(context: ContextTypes.DEFAULT_TYPE):
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Го качаться!")
+    context.job_queue.run_once(periodic_message, when=timedelta(seconds=10))
+    await update.message.reply_text("Привет! Бот запущен.")
+
