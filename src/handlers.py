@@ -1,8 +1,6 @@
-from random import randint
-
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-from datetime import datetime, date, time, timedelta
+from datetime import datetime, date, time
 from src.service.pushup import DatabaseService
 
 recorded_values = []
@@ -81,20 +79,9 @@ async def reply_to_mentions(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("Hi! Use /record <value> or /summary.")
 
 
-async def periodic_message(context):
-    now = datetime.now()
-    current_hour = now.hour
+async def periodic_message(context: ContextTypes.DEFAULT_TYPE):
 
-    if 9 <= current_hour < 23:
-        await context.bot.send_message(chat_id="-1002260855576", text="Ребятки, качаемся 💪")
-
-    next_interval = randint(3, 4)
-    context.job_queue.run_once(
-        periodic_message,
-        when=timedelta(hours=next_interval),
-        name="periodic_message"
-    )
-
+    await context.bot.send_message(chat_id="-1002260855576",text=f"Ребятки качаемся!!!")
 
 
 
@@ -122,6 +109,4 @@ async def daily_summary(context: ContextTypes.DEFAULT_TYPE):
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.job_queue.run_once(periodic_message, when=timedelta(seconds=10))
-    await update.message.reply_text("Привет! Бот запущен.")
-
+    await update.message.reply_text("Го качаться!")
