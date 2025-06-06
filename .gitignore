@@ -4,3 +4,4 @@ __pycache__/
 myenv
 *.py[cod]
 venv/
+kachokbot.sqlite
