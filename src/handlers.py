@@ -1,6 +1,8 @@
+from random import randint
+
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 from src.service.pushup import DatabaseService
 
 recorded_values = []
@@ -79,25 +81,21 @@ async def reply_to_mentions(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("Hi! Use /record <value> or /summary.")
 
 
-async def periodic_message(context: ContextTypes.DEFAULT_TYPE):
+async def periodic_message(context):
     now = datetime.now()
-    if not (time(9, 0) <= now.time() <= time(22, 0)):
-        return
+    current_hour = now.hour
 
-    service = DatabaseService()
+    if 9 <= current_hour < 23:
+        await context.bot.send_message(chat_id="-1002260855576", text="Ребятки, качаемся 💪")
 
-    all_users = service.repo.get_all_users()
-    for user in all_users:
-        user_pushups_today = service.repo.get_pushups_for_user_on_day(user.id, date.today())
-        total_today = sum(entry.pushups_done for entry in user_pushups_today)
+    next_interval = randint(3, 4)
+    context.job_queue.run_once(
+        periodic_message,
+        when=timedelta(hours=next_interval),
+        name="periodic_message"
+    )
 
-        if total_today < 100:
-            await context.bot.send_message(
-                chat_id="-1002260855576",
-                text=f"@{user.nickname}, ты сегодня сделал только {total_today} отжиманий. Пора качаться! 💪"
-            )
 
-    service.close()
 
 
 async def daily_summary(context: ContextTypes.DEFAULT_TYPE):
