@@ -21,7 +21,22 @@ class DatabaseService:
         )
         return result
 
-    from datetime import date
+    def record_anecdote(self, nickname: str, anecdote: str):
+        user = self.repo.get_user_by_nickname(nickname)
+        if not user:
+            return
+        if user.nickname == "kindude":
+            self.repo.record_anecdote(anecdote)
+        else:
+            return "Ты не Марк!"
+        return "Анекдот записан, мастер"
+
+    def get_random_anecdote(self):
+        anecdote = self.repo.get_random_anecdote()
+        if anecdote:
+            return anecdote.anecdote
+
+
 
     def get_user_summary(self, nickname: str) -> dict:
         user = self.repo.get_user_by_nickname(nickname)

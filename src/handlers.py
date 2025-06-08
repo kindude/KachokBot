@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from datetime import datetime, date, time
 from src.service.pushup import DatabaseService
-
+import random
 recorded_values = []
 
 
@@ -32,7 +32,6 @@ async def record(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("Введите число, а не буквы 💀")
     else:
         await update.message.reply_text("Пример: /record 30")
-
 
 async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
     nickname = get_nickname(update)
@@ -85,6 +84,29 @@ async def periodic_message(context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat_id="-1002260855576", text="Ребятки качаемся!!!")
 
 
+async def random_anecdote_job(context: ContextTypes.DEFAULT_TYPE):
+    service = DatabaseService()
+    if random.random() < 0.1:
+        anecdote = await service.get_random_anecdote()
+        if anecdote:
+            await context.bot.send_message(
+                chat_id="-1002260855576",
+                text=anecdote.anecdote
+            )
+
+# async def random_anecdote_job(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     service = DatabaseService()
+#     if random.random() < 1:
+#         anecdote = service.get_random_anecdote()
+#         if anecdote:
+#             await update.message.reply_text(anecdote)
+
+async def record_anecdote(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    nickname = get_nickname(update)
+    anecdote = " ".join(context.args)
+    service = DatabaseService()
+    response = service.record_anecdote(nickname=nickname, anecdote=anecdote)
+    await update.message.reply_text(response)
 
 async def daily_summary(context: ContextTypes.DEFAULT_TYPE):
     service = DatabaseService()

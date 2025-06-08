@@ -1,7 +1,8 @@
+import random
 from datetime import date
 from ..db import SessionLocal
-
-from ..models import UserTable, PushUpsTable, DayTable
+from sqlalchemy import func
+from ..models import UserTable, PushUpsTable, DayTable, AnecdotesTable
 
 
 class DatabaseRepository:
@@ -23,6 +24,17 @@ class DatabaseRepository:
 
     def get_user_by_nickname(self, nickname: str):
         return self.db.query(UserTable).filter(UserTable.nickname == nickname).first()
+
+    def get_random_anecdote(self):
+        anecdote = (
+            self.db.query(AnecdotesTable)
+            .order_by(func.random())
+            .limit(1)
+            .one_or_none()
+        )
+        return anecdote
+
+
     def add_day(self, day: date) -> DayTable:
         day_record = self.db.query(DayTable).filter(DayTable.date == day).first()
         if not day_record:
@@ -55,6 +67,13 @@ class DatabaseRepository:
             self.db.commit()
             self.db.refresh(new_entry)
             return new_entry
+
+    def record_anecdote(self, anecdote: str):
+        new_anecdote = AnecdotesTable(anecdote=anecdote)
+        self.db.add(new_anecdote)
+        self.db.commit()
+        self.db.refresh(new_anecdote)
+        return new_anecdote
 
     def get_all_pushups(self):
         return self.db.query(PushUpsTable).all()

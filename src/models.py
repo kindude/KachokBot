@@ -22,3 +22,9 @@ class PushUpsTable(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     day_id = Column(Integer, ForeignKey("days.id"))
     pushups_done = Column(Integer)
+
+
+class AnecdotesTable(Base):
+    __tablename__ = "anecdotes"
+    id = Column(Integer, primary_key=True)
+    anecdote = Column(String)
