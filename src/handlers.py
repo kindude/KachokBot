@@ -92,9 +92,11 @@ async def random_anecdote_job(context: ContextTypes.DEFAULT_TYPE):
             )
 async def daily_leaderboard(context: ContextTypes.DEFAULT_TYPE):
     service = DatabaseService()
-    return service.extract_scores()
-
-
+    text = service.extract_scores()
+    await context.bot.send_message(
+        chat_id="-1002260855576",
+        text=text
+    )
 
 # async def random_anecdote_job(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #     service = DatabaseService()
