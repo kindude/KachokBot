@@ -28,7 +28,7 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), reply_to_mentions))
 
     application.job_queue.run_repeating(periodic_message, interval=10800, first=5)
-    application.job_queue.run_repeating(random_anecdote_job, interval=3600, first=60)
+    application.job_queue.run_repeating(random_anecdote_job, interval=3600, first=1)
     print("Bot started!")
     application.run_polling()
 
