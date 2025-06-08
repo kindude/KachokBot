@@ -25,7 +25,7 @@ class DatabaseService:
         user = self.repo.get_user_by_nickname(nickname)
         if not user:
             return
-        if user.nickname == "kindude":
+        if user.nickname == "Guest_0":
             self.repo.record_anecdote(anecdote)
         else:
             return "Ты не Марк!"
