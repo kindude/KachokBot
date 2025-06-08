@@ -80,8 +80,9 @@ async def reply_to_mentions(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def periodic_message(context: ContextTypes.DEFAULT_TYPE):
-
-    await context.bot.send_message(chat_id="-1002260855576",text=f"Ребятки качаемся!!!")
+    current_hour = datetime.now().hour
+    if 9 <= current_hour <= 23:
+        await context.bot.send_message(chat_id="-1002260855576", text="Ребятки качаемся!!!")
 
 
 
