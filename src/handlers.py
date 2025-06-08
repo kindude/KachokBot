@@ -86,7 +86,7 @@ async def periodic_message(context: ContextTypes.DEFAULT_TYPE):
 
 async def random_anecdote_job(context: ContextTypes.DEFAULT_TYPE):
     service = DatabaseService()
-    if random.random() < 0.1:
+    if random.random() < 0.5:
         anecdote = await service.get_random_anecdote()
         if anecdote:
             await context.bot.send_message(
