@@ -3,7 +3,8 @@ from datetime import date
 from ..db import SessionLocal
 from sqlalchemy import func
 from ..models import UserTable, PushUpsTable, DayTable, AnecdotesTable
-
+from sqlalchemy import func, desc, and_
+from datetime import date
 
 class DatabaseRepository:
     def __init__(self):
@@ -34,6 +35,17 @@ class DatabaseRepository:
         )
         return anecdote
 
+    def get_users_w_scores(self):
+        today = date.today()
+        data = users_w_scores = (
+            self.db.query(UserTable, PushUpsTable)
+            .join(PushUpsTable, UserTable.id == PushUpsTable.user_id)
+            .join(DayTable, DayTable.id == PushUpsTable.day_id)
+            .filter(DayTable.date == today)
+            .order_by(desc(PushUpsTable.pushups_done))
+            .all()
+        )
+        return data
 
     def add_day(self, day: date) -> DayTable:
         day_record = self.db.query(DayTable).filter(DayTable.date == day).first()

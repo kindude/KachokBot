@@ -36,7 +36,12 @@ class DatabaseService:
         if anecdote:
             return anecdote.anecdote
 
-
+    def extract_scores(self):
+        users_w_scores = self.repo.get_users_w_scores()
+        leaderboard = "🏆 Топ за сегодня\n\n"
+        for idx, (user, pushup) in enumerate(users_w_scores, start=1):
+            leaderboard += f"{idx}. {user.nickname} – {pushup.pushups_done} отжиманий\n"
+        return leaderboard
 
     def get_user_summary(self, nickname: str) -> dict:
         user = self.repo.get_user_by_nickname(nickname)

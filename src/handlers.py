@@ -5,6 +5,7 @@ from src.service.pushup import DatabaseService
 import random
 recorded_values = []
 
+phrases_to_use = ["Уважение", "Увлажнение", "Мужчина, мужчинский", "Воу-воу-воу", "Дал-дал, ушел", "Это просто зверь!"]
 
 def get_nickname(update: Update) -> str:
     user = update.effective_user
@@ -20,13 +21,9 @@ async def record(update: Update, context: ContextTypes.DEFAULT_TYPE):
             service = DatabaseService()
             service.record_pushups(nickname=nickname, pushups_done=pushups_done)
             service.close()
-            summary = service.get_user_summary(nickname)
-            if summary['total_pushups'] < 100:
-                await update.message.reply_text(f"Ну мужчина, мужчинский! Записал!")
-                #await update.message.reply_text(f"Тебя пидором, но пока что карандашом")
-            else:
-                await update.message.reply_text(f"Вот это мужчина, посмотрите на него")
-            # await update.message.reply_text(f"Записал {pushups_done} отжиманий за @{nickname}! ")
+            _summary = service.get_user_summary(nickname)
+            index = random.randrange(0, len(phrases_to_use))
+            await update.message.reply_text(f"{phrases_to_use[index]}\n{_summary['today_pushups']}/100")
 
         except ValueError:
             await update.message.reply_text("Введите число, а не буквы 💀")
@@ -93,6 +90,11 @@ async def random_anecdote_job(context: ContextTypes.DEFAULT_TYPE):
                 chat_id="-1002260855576",
                 text=anecdote
             )
+async def daily_leaderboard(context: ContextTypes.DEFAULT_TYPE):
+    service = DatabaseService()
+    return service.extract_scores()
+
+
 
 # async def random_anecdote_job(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #     service = DatabaseService()
