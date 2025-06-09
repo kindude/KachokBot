@@ -28,6 +28,7 @@ def main():
 
     application.job_queue.run_repeating(periodic_message, interval=10800, first=60)
     application.job_queue.run_repeating(random_anecdote_job, interval=1800, first=30)
+
     application.job_queue.run_daily(
         callback=daily_leaderboard,
         time=datetime.time(hour=1, minute=30, tzinfo=pytz.timezone('Europe/London')),

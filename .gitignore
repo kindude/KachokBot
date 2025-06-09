@@ -5,4 +5,4 @@ myenv
 *.py[cod]
 venv/
 kachokbot.sqlite
-
+backups/
