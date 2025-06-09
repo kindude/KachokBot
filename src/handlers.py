@@ -3,11 +3,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ContextTypes
-from datetime import datetime, date
+from datetime import datetime
 from src.service.pushup import DatabaseService
 import random
 load_dotenv()
-phrases_to_use = ["Уважение", "Увлажнение", "Мужчина, мужчинский", "Воу-воу-воу", "Дал-дал, ушел", "Это просто зверь!"]
+phrases_to_use = ["Уважение", "Увлажнение", "Мужчина, мужчинский", "Воу-воу-воу", "Дал-дал, ушел", "Это просто зверь!",
+                  "Wagamamу и там и тут", "Тремболон колю в очко, чтобы стать большим-большим качком", "Не забывай поменять масло каждые 100 отжиманий"]
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_DIR = BASE_DIR / "media"
@@ -31,7 +32,7 @@ async def record(update: Update, context: ContextTypes.DEFAULT_TYPE):
             service.close()
             _summary = service.get_user_summary(nickname)
             index = random.randrange(0, len(phrases_to_use))
-            if _summary['today_pushups'] in [6, 52, 69, 95]:
+            if _summary['today_pushups'] in [4, 6, 15, 52, 69, 93, 95]:
                 image_path = MEDIA_DIR / f"{_summary['today_pushups']}.jpg"
                 with open(image_path, "rb") as photo:
                     await update.message.reply_photo(photo=photo, caption=f"{phrases_to_use[index]}\n{_summary['today_pushups']}/100")
