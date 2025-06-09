@@ -44,7 +44,7 @@ async def record(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Пример: /record 30")
 
 
-async def summary(update: Update):
+async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
     nickname = get_nickname(update)
 
     service = DatabaseService()
