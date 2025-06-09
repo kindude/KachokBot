@@ -4,7 +4,7 @@ import pytz
 from dotenv import load_dotenv
 from telegram.ext import Application, CommandHandler
 from src.handlers import start, record, summary, periodic_message, record_anecdote, \
-    random_anecdote_job, daily_leaderboard
+    random_anecdote_job, daily_leaderboard, useful_article
 
 
 async def setup_jobs(application: Application) -> None:
@@ -30,10 +30,24 @@ def main():
 
     application.job_queue.run_daily(
         callback=daily_leaderboard,
-        time=datetime.time(hour=20, minute=15, tzinfo=pytz.timezone('Europe/London')),
+        time=datetime.time(hour=23, minute=50, tzinfo=pytz.timezone('Europe/London')),
         name="daily_leaderboard",
         days=(0, 1, 2, 3, 4, 5, 6),
     )
+    application.job_queue.run_daily(
+        callback=useful_article,
+        time=datetime.time(hour=9, minute=30, tzinfo=pytz.timezone('Europe/London')),
+        name="useful_article_morning",
+        days=(0, 1, 2, 3, 4, 5, 6),
+    )
+
+    application.job_queue.run_daily(
+        callback=useful_article,
+        time=datetime.time(hour=21, minute=25, tzinfo=pytz.timezone('Europe/London')),
+        name="useful_article_evening",
+        days=(0, 1, 2, 3, 4, 5, 6),
+    )
+
     print("Bot started!")
     application.run_polling()
 

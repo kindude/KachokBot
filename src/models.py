@@ -28,3 +28,10 @@ class AnecdotesTable(Base):
     __tablename__ = "anecdotes"
     id = Column(Integer, primary_key=True)
     anecdote = Column(String)
+
+
+class ArticlesSent(Base):
+    __tablename__ = "articles_sent"
+    id = Column(Integer, primary_key=True)
+    title = Column(String)
+    url = Column(String)

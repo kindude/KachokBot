@@ -1,8 +1,10 @@
 import random
 from datetime import date
+from sqlite3 import IntegrityError
+
 from ..db import SessionLocal
 from sqlalchemy import func
-from ..models import UserTable, PushUpsTable, DayTable, AnecdotesTable
+from ..models import UserTable, PushUpsTable, DayTable, AnecdotesTable, ArticlesSent
 from sqlalchemy import func, desc, and_
 from datetime import date
 
@@ -100,3 +102,17 @@ class DatabaseRepository:
         if not day_record:
             return []
         return self.db.query(PushUpsTable).filter_by(user_id=user_id, day_id=day_record.id).all()
+
+    def get_article_by_url(self, url: str) -> ArticlesSent | None:
+        return self.db.query(ArticlesSent).filter_by(url=url).first()
+
+    def save_article(self, title: str, url: str) -> bool:
+        try:
+            article = ArticlesSent(title=title, url=url)
+            self.db.add(article)
+            self.db.commit()
+            self.db.refresh(article)
+            return True
+        except IntegrityError:
+            self.db.rollback()
+            return False

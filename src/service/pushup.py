@@ -94,3 +94,10 @@ class DatabaseService:
             "monthly_percentage": round((total_pushups / (30 * 100)) * 100, 2)
         }
 
+    def find_article_if_exists_by_url(self, url: str) -> bool:
+        return self.repo.get_article_by_url(url) is not None
+
+    def save_article(self, title: str, url: str) -> bool:
+        if self.find_article_if_exists_by_url(url):
+            return False
+        return self.repo.save_article(title, url)

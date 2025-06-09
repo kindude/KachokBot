@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ContextTypes
 from datetime import datetime
+
+from src.parser import Parser
 from src.service.pushup import DatabaseService
 import random
 load_dotenv()
@@ -90,6 +92,22 @@ async def daily_leaderboard(context: ContextTypes.DEFAULT_TYPE):
         chat_id=CHAT_ID,
         text=text
     )
+
+
+async def useful_article(context: ContextTypes.DEFAULT_TYPE):
+    parser = Parser()
+    service = DatabaseService()
+
+    articles = parser.parse_all()
+    random.shuffle(articles)
+    title, url = articles[0]
+    if not service.find_article_if_exists_by_url(url):
+        service.save_article(title, url)
+        await context.bot.send_message(
+            chat_id=CHAT_ID,
+            text=f"{title}\n{url}"
+        )
+    return None
 
 
 async def record_anecdote(update: Update, context: ContextTypes.DEFAULT_TYPE):
