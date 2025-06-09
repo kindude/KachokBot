@@ -35,13 +35,12 @@ class DatabaseRepository:
         )
         return anecdote
 
-    def get_users_w_scores(self):
-        today = date.today()
+    def get_users_w_scores(self, yesterday):
         data = users_w_scores = (
             self.db.query(UserTable, PushUpsTable)
             .join(PushUpsTable, UserTable.id == PushUpsTable.user_id)
             .join(DayTable, DayTable.id == PushUpsTable.day_id)
-            .filter(DayTable.date == today)
+            .filter(DayTable.date == yesterday)
             .order_by(desc(PushUpsTable.pushups_done))
             .all()
         )

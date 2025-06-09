@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from src.repository.pushup import DatabaseRepository
 from datetime import date, datetime
 
@@ -37,8 +37,9 @@ class DatabaseService:
             return anecdote.anecdote
 
     def extract_scores(self):
-        users_w_scores = self.repo.get_users_w_scores()
-        leaderboard = "🏆 Топ за сегодня\n\n"
+        yesterday = date.today() - timedelta(days=1)
+        users_w_scores = self.repo.get_users_w_scores(yesterday)
+        leaderboard = f"🏆 Топ за {yesterday.strftime('%d.%m.%Y')}\n\n"
         for idx, (user, pushup) in enumerate(users_w_scores, start=1):
             leaderboard += f"{idx}. {user.nickname} – {pushup.pushups_done} отжиманий\n"
         return leaderboard
