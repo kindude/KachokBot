@@ -43,7 +43,7 @@ def main():
 
     application.job_queue.run_daily(
         callback=useful_article,
-        time=datetime.time(hour=21, minute=25, tzinfo=pytz.timezone('Europe/London')),
+        time=datetime.time(hour=21, minute=30, tzinfo=pytz.timezone('Europe/London')),
         name="useful_article_evening",
         days=(0, 1, 2, 3, 4, 5, 6),
     )
