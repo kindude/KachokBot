@@ -2,8 +2,8 @@ import datetime
 import os
 import pytz
 from dotenv import load_dotenv
-from telegram.ext import Application, MessageHandler, CommandHandler, filters
-from src.handlers import start, record, summary, reply_to_mentions, periodic_message, daily_summary, record_anecdote, \
+from telegram.ext import Application, CommandHandler
+from src.handlers import start, record, summary, periodic_message, record_anecdote, \
     random_anecdote_job, daily_leaderboard
 
 
@@ -24,14 +24,13 @@ def main():
     application.add_handler(CommandHandler("summary", summary))
     application.add_handler(CommandHandler("anecdote", record_anecdote))
     application.add_handler(CommandHandler("joke", random_anecdote_job))
-    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), reply_to_mentions))
 
     application.job_queue.run_repeating(periodic_message, interval=10800, first=60)
     application.job_queue.run_repeating(random_anecdote_job, interval=1800, first=30)
 
     application.job_queue.run_daily(
         callback=daily_leaderboard,
-        time=datetime.time(hour=1, minute=30, tzinfo=pytz.timezone('Europe/London')),
+        time=datetime.time(hour=20, minute=15, tzinfo=pytz.timezone('Europe/London')),
         name="daily_leaderboard",
         days=(0, 1, 2, 3, 4, 5, 6),
     )
