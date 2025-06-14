@@ -21,6 +21,15 @@ class DatabaseService:
         )
         return result
 
+    def record_phrase(self, phrase: str):
+        try:
+            result = self.repo.add_phrase(phrase=phrase)
+            if not result:
+                return None
+            return "Записал"
+        except:
+            return None
+
     def record_anecdote(self, nickname: str, anecdote: str):
         user = self.repo.get_user_by_nickname(nickname)
         if not user:
@@ -40,6 +49,11 @@ class DatabaseService:
         self.repo.update_anecdote(id=anecdote.id, new_date=today)
         return anecdote.anecdote
 
+    def get_random_motivational_phrase(self):
+        phrase = self.repo.get_random_phrase()
+        if not phrase:
+            return None
+        return phrase.phrase
     def extract_scores(self):
         today = date.today()
         users_w_scores = self.repo.get_users_w_scores(today)

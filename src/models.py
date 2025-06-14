@@ -38,3 +38,10 @@ class ArticlesSent(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String)
     url = Column(String)
+
+
+class MotivationalPhrases(Base):
+    __tablename__ = "motivational_phrases"
+    id = Column(Integer, primary_key=True)
+    phrase = Column(String)
+

@@ -27,6 +27,19 @@ def get_nickname(update: Update) -> str:
     return user.username or f"{user.first_name}_{user.id}"
 
 
+async def record_phrase(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    phrase = " ".join(context.args).strip()
+
+    if not phrase:
+        await update.message.reply_text("Введите фразу после команды. Пример: /phrase Уважение 💪")
+        return
+
+    service = DatabaseService()
+    response = service.record_phrase(phrase)
+    service.close()
+
+    await update.message.reply_text(response or "Записано")
+
 async def record(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.args:
         try:
@@ -35,15 +48,19 @@ async def record(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             service = DatabaseService()
             service.record_pushups(nickname=nickname, pushups_done=pushups_done)
+            motivational_phrase = service.get_random_motivational_phrase()
             service.close()
+            if not motivational_phrase:
+                index = random.randrange(0, len(phrases_to_use))
+                motivational_phrase = phrases_to_use[index]
             _summary = service.get_user_summary(nickname)
-            index = random.randrange(0, len(phrases_to_use))
+
             if _summary['today_pushups'] in [4, 6, 15, 52, 69, 93, 95]:
                 image_path = MEDIA_DIR / f"{_summary['today_pushups']}.jpg"
                 with open(image_path, "rb") as photo:
-                    await update.message.reply_photo(photo=photo, caption=f"{phrases_to_use[index]}\n{_summary['today_pushups']}/100")
+                    await update.message.reply_photo(photo=photo, caption=f"{motivational_phrase}\n{_summary['today_pushups']}/100")
             else:
-                await update.message.reply_text(f"{phrases_to_use[index]}\n{_summary['today_pushups']}/100")
+                await update.message.reply_text(f"{motivational_phrase}\n{_summary['today_pushups']}/100")
 
         except ValueError:
             await update.message.reply_text("Введите число, а не буквы 💀")

@@ -4,7 +4,7 @@ from sqlite3 import IntegrityError
 
 from ..db import SessionLocal
 from sqlalchemy import func, or_
-from ..models import UserTable, PushUpsTable, DayTable, AnecdotesTable, ArticlesSent
+from ..models import UserTable, PushUpsTable, DayTable, AnecdotesTable, ArticlesSent, MotivationalPhrases
 from sqlalchemy import func, desc, and_
 from datetime import date
 
@@ -21,6 +21,13 @@ class DatabaseRepository:
         self.db.commit()
         self.db.refresh(user)
         return user
+
+    def add_phrase(self, phrase):
+        phrase = MotivationalPhrases(phrase=phrase)
+        self.db.add(phrase)
+        self.db.commit()
+        self.db.refresh()
+        return phrase
 
     def get_user_by_id(self, user_id: int):
         return self.db.query(UserTable).filter(UserTable.id == user_id).first()
@@ -131,3 +138,11 @@ class DatabaseRepository:
         except IntegrityError:
             self.db.rollback()
             return False
+
+    def get_random_phrase(self):
+        return (
+            self.db.query(MotivationalPhrases)
+            .order_by(func.random())
+            .limit(1)
+            .one_or_none()
+        )
