@@ -8,6 +8,9 @@ from datetime import datetime
 from src.parser import Parser
 from src.service.pushup import DatabaseService
 import random
+
+# from src.speech_recognize import Transcriber
+
 load_dotenv()
 phrases_to_use = ["Уважение", "Увлажнение", "Мужчина, мужчинский", "Воу-воу-воу", "Дал-дал, ушел", "Это просто зверь!",
                   "Wagamamу и там и тут", "Тремболон колю в очко, чтобы стать большим-большим качком", "Не забывай поменять масло каждые 100 отжиманий"]
@@ -75,14 +78,22 @@ async def periodic_message(context: ContextTypes.DEFAULT_TYPE):
 
 
 async def random_anecdote_job(context: ContextTypes.DEFAULT_TYPE):
-    service = DatabaseService()
-    if random.random() < 0.7:
-        anecdote = service.get_random_anecdote()
-        if anecdote:
-            await context.bot.send_message(
-                chat_id=CHAT_ID,
-                text=anecdote
-            )
+    current_hour = datetime.now().hour
+    if 9 <= current_hour <= 23:
+        service = DatabaseService()
+        if random.random() < 0.5:
+            anecdote = service.get_random_anecdote()
+            if anecdote:
+                await context.bot.send_message(
+                    chat_id=CHAT_ID,
+                    text=anecdote
+                )
+
+
+# async def recognize_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     print("Hello world")
+#     transcriber = Transcriber()
+#     print(transcriber.transcribe("D:\\Practice\\KachokBot\\voices\\audio_2025-06-10_12-04-06.ogg"))
 
 
 async def daily_leaderboard(context: ContextTypes.DEFAULT_TYPE):
@@ -108,6 +119,38 @@ async def useful_article(context: ContextTypes.DEFAULT_TYPE):
             text=f"{title}\n{url}"
         )
     return None
+
+
+# async def track_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     print("Tets")
+#     message = update.message
+#
+#     if message is None:
+#         return
+#
+#     user = message.from_user.full_name if message.from_user else "Unknown user"
+#
+#     if message.voice:
+#         print(f"[VOICE] From {user} - duration: {message.voice.duration} sec")
+#         file = await context.bot.get_file(message.voice.file_id)
+#         file_path = f"voices/{message.voice.file_id}.ogg"
+#         await file.download_to_drive(file_path)
+#
+#         transcriber = Transcriber(language="ru-RU")
+#         transcribed_text = transcriber.transcribe(file_path)
+#
+#         # Reply with transcription (or a fallback message)
+#         reply = transcribed_text if transcribed_text else ""
+#         await update.message.reply_text(reply)
+#
+#         # Clean up the saved file
+#         try:
+#             os.remove(file_path)
+#             print(f"Deleted file: {file_path}")
+#         except Exception as e:
+#             print(f"Error deleting file: {e}")
+#     # elif message.text:
+#     #     print(f"[TEXT] From {user}: {message.text}")
 
 
 async def record_anecdote(update: Update, context: ContextTypes.DEFAULT_TYPE):
