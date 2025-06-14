@@ -33,8 +33,12 @@ class DatabaseService:
 
     def get_random_anecdote(self):
         anecdote = self.repo.get_random_anecdote()
-        if anecdote:
-            return anecdote.anecdote
+        if not anecdote:
+            return None
+        today = date.today()
+        anecdote.last_sent = today
+        self.repo.update_anecdote(id=anecdote.id, new_date=today)
+        return anecdote.anecdote
 
     def extract_scores(self):
         today = date.today()

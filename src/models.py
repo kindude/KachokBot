@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.orm import declarative_base
 
@@ -28,6 +30,7 @@ class AnecdotesTable(Base):
     __tablename__ = "anecdotes"
     id = Column(Integer, primary_key=True)
     anecdote = Column(String)
+    last_sent = Column(Date, nullable=False, default=datetime.date(9999, 12, 31))
 
 
 class ArticlesSent(Base):

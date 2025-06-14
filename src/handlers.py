@@ -82,13 +82,13 @@ async def random_anecdote_job(context: ContextTypes.DEFAULT_TYPE):
     current_hour = datetime.now().hour
     if 9 <= current_hour <= 23:
         service = DatabaseService()
-        if random.random() < 0.5:
-            anecdote = service.get_random_anecdote()
-            if anecdote:
-                await context.bot.send_message(
-                    chat_id=CHAT_ID,
-                    text=anecdote
-                )
+        try:
+            if random.random() < 0.5:
+                anecdote = service.get_random_anecdote()
+                if anecdote:
+                    await context.bot.send_message(chat_id=CHAT_ID, text=anecdote)
+        finally:
+            service.close()
 
 
 # async def recognize_message(update: Update, context: ContextTypes.DEFAULT_TYPE):

@@ -1,9 +1,9 @@
 import random
-from datetime import date
+from datetime import date, timedelta
 from sqlite3 import IntegrityError
 
 from ..db import SessionLocal
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from ..models import UserTable, PushUpsTable, DayTable, AnecdotesTable, ArticlesSent
 from sqlalchemy import func, desc, and_
 from datetime import date
@@ -29,16 +29,20 @@ class DatabaseRepository:
         return self.db.query(UserTable).filter(UserTable.nickname == nickname).first()
 
     def get_random_anecdote(self):
-        anecdote = (
+        seven_days_ago = date.today() - timedelta(days=7)
+        return (
             self.db.query(AnecdotesTable)
+            .filter(or_(
+                AnecdotesTable.last_sent == date(9999, 12, 31),
+                AnecdotesTable.last_sent <= seven_days_ago
+            ))
             .order_by(func.random())
             .limit(1)
             .one_or_none()
         )
-        return anecdote
 
     def get_users_w_scores(self, yesterday):
-        data = users_w_scores = (
+        data = (
             self.db.query(UserTable, PushUpsTable)
             .join(PushUpsTable, UserTable.id == PushUpsTable.user_id)
             .join(DayTable, DayTable.id == PushUpsTable.day_id)
@@ -112,6 +116,17 @@ class DatabaseRepository:
             self.db.add(article)
             self.db.commit()
             self.db.refresh(article)
+            return True
+        except IntegrityError:
+            self.db.rollback()
+            return False
+
+    def update_anecdote(self, id: int, new_date):
+        try:
+            self.db.query(AnecdotesTable) \
+                .filter(AnecdotesTable.id == id) \
+                .update({"last_sent": new_date}, synchronize_session=False)
+            self.db.commit()
             return True
         except IntegrityError:
             self.db.rollback()
