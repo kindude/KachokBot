@@ -4,7 +4,7 @@ import pytz
 from dotenv import load_dotenv
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from src.handlers import start, record, summary, periodic_message, record_anecdote, \
-    random_anecdote_job, daily_leaderboard, useful_article, track_message, recognize_message
+    random_anecdote_job, daily_leaderboard, useful_article
 
 
 async def setup_jobs(application: Application) -> None:
