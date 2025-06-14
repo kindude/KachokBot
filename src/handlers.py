@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 from dotenv import load_dotenv
 from telegram import Update
@@ -159,6 +160,17 @@ async def record_anecdote(update: Update, context: ContextTypes.DEFAULT_TYPE):
     service = DatabaseService()
     response = service.record_anecdote(nickname=nickname, anecdote=anecdote)
     await update.message.reply_text(response)
+
+
+async def record_number_command(update:Update, context: ContextTypes.DEFAULT_TYPE):
+    message_text = update.message.text
+    match = re.match(r'^/(\d+)$', message_text)
+    if match:
+        number = match.group(1)
+        context.args = [number]
+        await record(update, context)
+    else:
+        await update.message.reply_text("Invalid command format. Use /<number>.")
 
 
 async def start(update: Update):
