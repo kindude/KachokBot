@@ -40,32 +40,72 @@ async def record_phrase(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(response or "Записано")
 
+
+# async def handle_motivate(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     generator = BloomGenerator()
+#     service = DatabaseService()
+#     phrases = service.all_phrases()
+#
+#     if not phrases:
+#         await update.message.reply_text("Нет сохранённых мотивационных фраз 😢")
+#         return
+#
+#     # Get 5 random phrases
+#     import random
+#
+#     prompt = (
+#         "Give me a short motivational phrase:\n"
+#         "Phrase:"
+#     )
+#     response = generator.generate(prompt, max_length=50)
+#
+#     return response
+
+
 async def record(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.args:
         try:
-            pushups_done = int(context.args[0])
+            message_text = update.message.text
+            reps_done = int(context.args[0])
+            print(reps_done)
             nickname = get_nickname(update)
-
             service = DatabaseService()
-            service.record_pushups(nickname=nickname, pushups_done=pushups_done)
+
+            if "/p" in message_text:
+                service.record_pushups(nickname=nickname, pushups_done=reps_done)
+                _summary = service.get_user_summary(nickname)
+                progress = _summary['today_pushups']
+            elif "/a" in message_text:
+                service.record_abs(nickname=nickname, abs_done=reps_done)
+                _summary = service.get_user_summary(nickname)
+                progress = _summary['today_abs']
+            else:
+                await update.message.reply_text("Please use /p for pushups or /a for abs.")
+                service.close()
+                return
+
             motivational_phrase = service.get_random_motivational_phrase()
             service.close()
-            if not motivational_phrase:
-                index = random.randrange(0, len(phrases_to_use))
-                motivational_phrase = phrases_to_use[index]
-            _summary = service.get_user_summary(nickname)
 
-            if _summary['today_pushups'] in [4, 6, 15, 52, 69, 93, 95]:
-                image_path = MEDIA_DIR / f"{_summary['today_pushups']}.jpg"
-                with open(image_path, "rb") as photo:
-                    await update.message.reply_photo(photo=photo, caption=f"{motivational_phrase}\n{_summary['today_pushups']}/100")
-            else:
-                await update.message.reply_text(f"{motivational_phrase}\n{_summary['today_pushups']}/100")
+
+            if not motivational_phrase:
+                motivational_phrase = random.choice(phrases_to_use)
+            # motivational_phrase = await handle_motivate(update, context)
+
+            # Show photo if applicable
+            if progress in [4, 6, 15, 52, 69, 93, 95]:
+                image_path = MEDIA_DIR / f"{progress}.jpg"
+                if image_path.exists():
+                    with open(image_path, "rb") as photo:
+                        await update.message.reply_photo(photo=photo, caption=f"{motivational_phrase}\n{progress}/100")
+                    return
+
+            await update.message.reply_text(f"{motivational_phrase}\n{progress}/100")
 
         except ValueError:
-            await update.message.reply_text("Введите число, а не буквы 💀")
-    else:
-        await update.message.reply_text("Пример: /record 30")
+            await update.message.reply_text("Please enter a valid number after the command.")
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}")
 
 
 async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -76,14 +116,25 @@ async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
     service.close()
 
     reply_text = (
-        f"Качок {text['nickname']}\n"
-        f"Сделал всего: {text['total_pushups']}\n"
-        f"Сегодня: {text['today_pushups']}\n"
-        f"Парень качается {text['days_trained']} дней\n"
-        f"В среднем {text['average_per_day']} отжиманий в день\n"
-        f"Максимум в день {text['max_pushups_in_a_day']}\n"
-        f"Прогресс за месяц: {text['monthly_percentage']}%\n"
-        f"{text['motivation']}"
+        f"💪 Качок {text['nickname']}\n\n"
+        f"📊 Общая статистика:\n"
+        f"– Отжиманий всего: {text['total_pushups']}\n"
+        f"– Пресс всего: {text['total_abs']}\n"
+        f"– Тренировочных дней: {text['days_trained']}\n"
+        f"– Среднее отжиманий в день: {text['average_per_day']}\n"
+        f"– Максимум отжиманий за день: {text['max_pushups_in_a_day']}\n\n"
+        f"– Среднее количество пресса в день: {text['average_per_day']}\n"
+        f"– Максимум пресса за день: {text['max_pushups_in_a_day']}\n\n"
+
+        f"📅 Сегодня:\n"
+        f"– Отжиманий: {text['today_pushups']}\n"
+        f"– Пресс: {text['today_abs']}\n\n"
+
+        f"📆 Прогресс за месяц:\n"
+        f"– Отжимания: {text['monthly_percentage_pushups']}%\n"
+        f"– Пресс: {text['monthly_percentage_abs']}%\n\n"
+
+        f"🧠 {text['motivation']}"
     )
 
     await update.message.reply_text(reply_text)

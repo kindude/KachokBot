@@ -1,7 +1,7 @@
 import datetime
 
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
@@ -25,6 +25,17 @@ class PushUpsTable(Base):
     day_id = Column(Integer, ForeignKey("days.id"))
     pushups_done = Column(Integer)
 
+    day = relationship("DayTable", backref="pushups")
+
+
+class AbsTable(Base):
+    __tablename__ = "abs"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    day_id = Column(Integer, ForeignKey("days.id"))
+    abs_done = Column(Integer)
+
+    day = relationship("DayTable", backref="abs_entries")
 
 class AnecdotesTable(Base):
     __tablename__ = "anecdotes"

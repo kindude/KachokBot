@@ -4,7 +4,7 @@ from sqlite3 import IntegrityError
 
 from ..db import SessionLocal
 from sqlalchemy import func, or_
-from ..models import UserTable, PushUpsTable, DayTable, AnecdotesTable, ArticlesSent, MotivationalPhrases
+from ..models import UserTable, PushUpsTable, DayTable, AnecdotesTable, ArticlesSent, MotivationalPhrases, AbsTable
 from sqlalchemy import func, desc, and_
 from datetime import date
 
@@ -59,6 +59,17 @@ class DatabaseRepository:
         )
         return data
 
+    def get_users_w_scores(self, yesterday):
+        data = (
+            self.db.query(UserTable, AbsTable)
+            .join(AbsTable, UserTable.id == AbsTable.user_id)
+            .join(DayTable, DayTable.id == AbsTable.day_id)
+            .filter(DayTable.date == yesterday)
+            .order_by(desc(AbsTable.abs_done))
+            .all()
+        )
+        return data
+
     def add_day(self, day: date) -> DayTable:
         day_record = self.db.query(DayTable).filter(DayTable.date == day).first()
         if not day_record:
@@ -92,6 +103,30 @@ class DatabaseRepository:
             self.db.refresh(new_entry)
             return new_entry
 
+    def record_abs(self, user_id: int, day: date, abs_done: int):
+        day_record = self.add_day(day)
+
+        abs_entry = self.db.query(AbsTable).filter_by(
+            user_id=user_id,
+            day_id=day_record.id
+        ).first()
+
+        if abs_entry:
+            abs_entry.abs_done = (abs_entry.abs_done or 0) + abs_done
+            self.db.commit()
+            self.db.refresh(abs_entry)
+            return abs_entry
+        else:
+            new_entry = AbsTable(
+                user_id=user_id,
+                day_id=day_record.id,
+                abs_done=abs_done
+            )
+            self.db.add(new_entry)
+            self.db.commit()
+            self.db.refresh(new_entry)
+            return new_entry
+
     def record_anecdote(self, anecdote: str):
         new_anecdote = AnecdotesTable(anecdote=anecdote)
         self.db.add(new_anecdote)
@@ -104,7 +139,8 @@ class DatabaseRepository:
 
     def get_pushups_for_user(self, user_id: int):
         return self.db.query(PushUpsTable).filter_by(user_id=user_id).all()
-
+    def get_abs_for_user(self, user_id: int):
+        return self.db.query(AbsTable).filter_by(user_id=user_id).all()
     def get_all_users(self):
         return self.db.query(UserTable).all()
 
@@ -113,6 +149,12 @@ class DatabaseRepository:
         if not day_record:
             return []
         return self.db.query(PushUpsTable).filter_by(user_id=user_id, day_id=day_record.id).all()
+
+    def get_abs_for_user_on_day(self, user_id: int, day: date):
+        day_record = self.db.query(DayTable).filter(DayTable.date == day).first()
+        if not day_record:
+            return []
+        return self.db.query(AbsTable).filter_by(user_id=user_id, day_id=day_record.id).all()
 
     def get_article_by_url(self, url: str) -> ArticlesSent | None:
         return self.db.query(ArticlesSent).filter_by(url=url).first()
@@ -145,4 +187,9 @@ class DatabaseRepository:
             .order_by(func.random())
             .limit(1)
             .one_or_none()
+        )
+    def get_all_phrases(self):
+        return (
+            self.db.query(MotivationalPhrases)
+            .all()
         )

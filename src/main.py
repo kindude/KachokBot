@@ -2,9 +2,9 @@ import datetime
 import os
 import pytz
 from dotenv import load_dotenv
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from telegram.ext import Application, CommandHandler
 from src.handlers import start, record, summary, periodic_message, record_anecdote, \
-    random_anecdote_job, daily_leaderboard, useful_article, record_number_command, record_phrase
+    random_anecdote_job, daily_leaderboard, useful_article,  record_phrase
 
 
 async def setup_jobs(application: Application) -> None:
@@ -22,6 +22,8 @@ def main():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("record", record))
     application.add_handler(CommandHandler("summary", summary))
+    application.add_handler(CommandHandler("p", record))
+    application.add_handler(CommandHandler("a", record))
     application.add_handler(CommandHandler("anecdote", record_anecdote))
     application.add_handler(CommandHandler("phrase", record_phrase))
     # application.add_handler(CommandHandler("joke", random_anecdote_job))
@@ -30,7 +32,7 @@ def main():
 
     application.job_queue.run_repeating(periodic_message, interval=10800, first=60)
     application.job_queue.run_repeating(random_anecdote_job, interval=1800, first=30)
-    application.add_handler(MessageHandler(filters.Regex(r'^/\d+$'), record_number_command))
+    # application.add_handler(MessageHandler(filters.Regex(r'^/\d+$'), record_number_command))
     application.job_queue.run_daily(
         callback=daily_leaderboard,
         time=datetime.time(hour=23, minute=50, tzinfo=pytz.timezone('Europe/London')),
