@@ -122,22 +122,20 @@ async def summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"– Пресс всего: {text['total_abs']}\n"
         f"– Тренировочных дней: {text['days_trained']}\n"
         f"– Среднее отжиманий в день: {text['average_per_day']}\n"
-        f"– Максимум отжиманий за день: {text['max_pushups_in_a_day']}\n\n"
-        f"– Среднее количество пресса в день: {text['average_per_day']}\n"
-        f"– Максимум пресса за день: {text['max_pushups_in_a_day']}\n\n"
-
+        f"– Максимум отжиманий за день: {text['max_pushups_in_a_day']}\n"
+        f"– Среднее количество пресса в день: {text['average_abs_per_day']}\n"
+        f"– Максимум пресса за день: {text['max_abs_in_a_day']}\n\n"
         f"📅 Сегодня:\n"
         f"– Отжиманий: {text['today_pushups']}\n"
         f"– Пресс: {text['today_abs']}\n\n"
-
         f"📆 Прогресс за месяц:\n"
         f"– Отжимания: {text['monthly_percentage_pushups']}%\n"
         f"– Пресс: {text['monthly_percentage_abs']}%\n\n"
-
         f"🧠 {text['motivation']}"
     )
 
     await update.message.reply_text(reply_text)
+
 
 
 async def periodic_message(context: ContextTypes.DEFAULT_TYPE):

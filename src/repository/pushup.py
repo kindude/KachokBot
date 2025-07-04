@@ -59,7 +59,7 @@ class DatabaseRepository:
         )
         return data
 
-    def get_users_w_scores(self, yesterday):
+    def get_users_w_abs(self, yesterday):
         data = (
             self.db.query(UserTable, AbsTable)
             .join(AbsTable, UserTable.id == AbsTable.user_id)

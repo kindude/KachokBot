@@ -100,7 +100,9 @@ class DatabaseService:
                 "total_abs": 0,
                 "days_trained": 0,
                 "average_per_day": 0,
+                "average_abs_per_day": 0,
                 "max_pushups_in_a_day": 0,
+                "max_abs_in_a_day": 0,
                 "motivation": "",
                 "today_pushups": 0,
                 "today_abs": 0,
@@ -120,7 +122,9 @@ class DatabaseService:
         days_trained = len(all_days)
 
         average_per_day = (total_pushups // days_trained) if days_trained > 0 else 0
+        average_abs_per_day = (total_abs // days_trained) if days_trained > 0 else 0
         max_pushups = max((p.pushups_done or 0 for p in all_pushups), default=0)
+        max_abs = max((a.abs_done or 0 for a in all_abs), default=0)
 
         today = date.today()
         today_pushups = sum(p.pushups_done or 0 for p in self.repo.get_pushups_for_user_on_day(user.id, today))
@@ -157,7 +161,9 @@ class DatabaseService:
             "total_abs": total_abs,
             "days_trained": days_trained,
             "average_per_day": average_per_day,
+            "average_abs_per_day": average_abs_per_day,
             "max_pushups_in_a_day": max_pushups,
+            "max_abs_in_a_day": max_abs,
             "motivation": motivation,
             "today_pushups": today_pushups,
             "today_abs": today_abs,
