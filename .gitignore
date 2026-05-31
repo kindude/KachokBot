@@ -8,7 +8,7 @@ venv/
 *.sqlite
 backups/
 
-# Model files
+# Model files and training scripts
 *.gguf
 kachok-finetuned/
 kachok-merged/
@@ -17,3 +17,7 @@ kachok-1.5b-merged/
 unsloth_compiled_cache/
 llama.cpp/
 data.jsonl
+Modelfile
+convert.py
+export_training_data.py
+finetune.py
