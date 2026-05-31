@@ -5,5 +5,15 @@ __pycache__/
 myenv
 *.py[cod]
 venv/
-kachokbot.sqlite
+*.sqlite
 backups/
+
+# Model files
+*.gguf
+kachok-finetuned/
+kachok-merged/
+kachok-1.5b-finetuned/
+kachok-1.5b-merged/
+unsloth_compiled_cache/
+llama.cpp/
+data.jsonl
