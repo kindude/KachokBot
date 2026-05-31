@@ -1,9 +1,14 @@
+import os
 from logging.config import fileConfig
+from dotenv import load_dotenv
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from src.models import Base
 from alembic import context
+
+app_env = os.getenv("APP_ENV", "prod")
+load_dotenv(f".env.{app_env}")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -19,6 +24,10 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
+
+db_url = os.getenv("DATABASE_URL")
+if db_url:
+    config.set_main_option("sqlalchemy.url", db_url)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

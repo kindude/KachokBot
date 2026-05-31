@@ -1,5 +1,4 @@
 import datetime
-
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
 
@@ -24,7 +23,6 @@ class PushUpsTable(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     day_id = Column(Integer, ForeignKey("days.id"))
     pushups_done = Column(Integer)
-
     day = relationship("DayTable", backref="pushups")
 
 
@@ -34,8 +32,26 @@ class AbsTable(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     day_id = Column(Integer, ForeignKey("days.id"))
     abs_done = Column(Integer)
-
     day = relationship("DayTable", backref="abs_entries")
+
+
+class PullUpsTable(Base):
+    __tablename__ = "pullups"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    day_id = Column(Integer, ForeignKey("days.id"))
+    pullups_done = Column(Integer)
+    day = relationship("DayTable", backref="pullups")
+
+
+class PlankTable(Base):
+    __tablename__ = "plank"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    day_id = Column(Integer, ForeignKey("days.id"))
+    duration_seconds = Column(Integer)
+    day = relationship("DayTable", backref="plank_entries")
+
 
 class AnecdotesTable(Base):
     __tablename__ = "anecdotes"
@@ -55,4 +71,3 @@ class MotivationalPhrases(Base):
     __tablename__ = "motivational_phrases"
     id = Column(Integer, primary_key=True)
     phrase = Column(String)
-

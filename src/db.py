@@ -1,8 +1,10 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import event
 
-engine = create_engine("sqlite:///kachokbot.sqlite", connect_args={"check_same_thread": False})
+_db_url = os.getenv("DATABASE_URL", "sqlite:///kachokbot.sqlite")
+engine = create_engine(_db_url, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=engine, autoflush=False)
 
 
